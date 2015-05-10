@@ -7,3 +7,4 @@ bower_components
 .zedstate
 src/app/data/**/*.js
 src/app/test/**/*.js
+
