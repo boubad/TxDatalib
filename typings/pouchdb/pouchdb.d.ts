@@ -258,9 +258,15 @@ interface PouchChange {
 interface PouchChanges {
     results: PouchChange[];
 }
+interface IPouchFuncs {
+    enable: (v: string) => void;
+    disable: () => void;
+}
 
 interface PouchApi {
     changes: (opts?: PouchChangesOptions) => PouchCancellable;
+    plugin: (p: any) => void;
+    debug: IPouchFuncs;
     /*
     changes(opts: PouchChangesOptions, callback: (err: PouchError, res: PouchChanges) => void): PouchCancellable;
     changes(callback: (err: PouchError, res: PouchChanges) => void): PouchCancellable;
@@ -315,12 +321,8 @@ interface PouchOptions {
     adapter?: string;
     ajax?: PouchAjaxOptions;
 }
-interface IPouchFuncs {
-    enable: (v: string) => void;
-    disable: () => void;
-}
 
-   
+
 // Support AMD require
 //declare module 'pouchdb' {
 //   var PouchDB: PouchDB;

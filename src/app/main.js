@@ -4,8 +4,7 @@ require.config({
         'QUnit': '../lib/qunit/qunit-1.18.0',
         'bluebird': '../lib/bluebird/bluebird',
         'pouchdb': '../lib/pouchdb/pouchdb.min',
-        'gql': '../lib/pouchdb/pouchdb.gql',
-        'domain':'./data/domain',
+        'domain':'./data/domain'
     },
     shim: {
        'QUnit': {
@@ -18,9 +17,6 @@ require.config({
        'bluebird': {
          exports: 'Promise'
        },
-       'gql':{
-        exports: 'GQL'
-       },
        'pouchdb':{
         depends:['bluebird'],
         exports: 'PouchDB'
@@ -29,7 +25,7 @@ require.config({
 });
 // require the unit tests.
 require(
-    ['bluebird','pouchdb','QUnit','test/dummy'],
+    ['bluebird','pouchdb','QUnit','test/pouchdatabasetest'],
     function(Promise,PouchDB,QUnit, Mytest) {
         PouchDB.debug.enable('*');
         // run the tests.
