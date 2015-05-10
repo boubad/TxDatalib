@@ -1,0 +1,31 @@
+{
+    "version": "1.5.0",
+    "compilerOptions": {
+        "target": "es5",
+        "module": "amd",
+        "declaration": false,
+        "noImplicitAny": false,
+        "removeComments": true,
+        "noLib": false,
+        "emitDecoratorMetadata": true
+    },
+    "filesGlob": [
+        "./**/*.ts",
+        "!./node_modules/**/*.ts"
+    ],
+    "files": [
+        "./src/app/data/domain/baseitem.ts",
+        "./src/app/data/domain/elementdesc.ts",
+        "./src/app/data/domain/mycrypto.ts",
+        "./src/app/data/domain/person.ts",
+        "./src/app/data/services/pouchdb/pouchdatabase.ts",
+        "./src/app/data/utils/infoconstants.ts",
+        "./src/app/data/utils/inforoot.ts",
+        "./src/app/test/dummy.ts",
+        "./typings/bluebird/bluebird.d.ts",
+        "./typings/infodata/infodata.d.ts",
+        "./typings/pouchdb/gql.d.ts",
+        "./typings/pouchdb/pouchdb.d.ts",
+        "./typings/qunit/qunit.d.ts"
+    ]
+}

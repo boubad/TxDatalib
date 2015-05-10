@@ -1,0 +1,15 @@
+{
+  "name": "InfoData",
+  "version": "1.0.0",
+  "description": "infoData",
+  "main": "./server/www.js",
+  "devDependencies": {
+     "cookie-parser": "*",
+    "debug": "*",
+    "express": "*",
+    "jade": "*",
+    "morgan": "*",
+    "serve-favicon": "*",
+    "typescript": "Microsoft/TypeScript"
+  }
+}
