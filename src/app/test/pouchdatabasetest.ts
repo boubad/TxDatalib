@@ -17,7 +17,7 @@ class PouchDatabaseTest {
             assert.ok(b, 'Database is online');
             done();
         }).catch((err) => {
-            assert.ok(false, err.toString());
+            assert.ok(false, (err)? err.toString(): 'Exception');
             done();
         });
     });
@@ -28,7 +28,7 @@ class PouchDatabaseTest {
             assert.ok(true, 'check_admin OK');
             done();
         }).catch((err) => {
-            assert.ok(false, err.toString());
+          assert.ok(false, (err)? err.toString(): 'Exception');
             done();
         });
     });
@@ -44,12 +44,12 @@ class PouchDatabaseTest {
             }
             done();
         }).catch((err) => {
-            assert.ok(false, err.toString());
+          assert.ok(false, (err)? err.toString(): 'Exception');
             done();
         });
     });
     //
-  
+
   }// run
 }// class PouchDatabaseTest
 export var main = new PouchDatabaseTest();

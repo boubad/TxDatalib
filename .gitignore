@@ -6,4 +6,4 @@ bower_components
 .c9
 .zedstate
 src/app/data/**/*.js
-src/test/**/*.js
+src/app/test/**/*.js

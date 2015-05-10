@@ -42,6 +42,7 @@
         "./src/app/data/domain/siglenameitem.ts",
         "./src/app/data/domain/unite.ts",
         "./src/app/data/domain/workitem.ts",
+        "./src/app/data/model/userinfo.ts",
         "./src/app/data/services/dataservice.ts",
         "./src/app/data/services/pouchdb/pouchdatabase.ts",
         "./src/app/data/utils/infoconstants.ts",

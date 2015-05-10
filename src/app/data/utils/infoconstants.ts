@@ -2,8 +2,8 @@
 //
 export const EMPTY_STRING: string = '';
 //
-export const DATABASE_NAME: string = 'http://localhost:5984/geninfo';
-//export const DATABASE_NAME:string = 'geninfo';
+//export const DATABASE_NAME: string = 'http://localhost:5984/geninfo';
+export const DATABASE_NAME:string = 'geninfo';
 export const PERSON_KEY: string = 'person';
 export const ETUDIANTPERSON_KEY: string = 'etudperson';
 export const DEPARTEMENTID_KEY: string = 'departementid';
