@@ -64,7 +64,7 @@ export class WorkItem extends DepartementPerson
         return this._genre;
     }
     public set genre(s: string) {
-        this._sem = InfoRoot.check_upper_string(s);
+        this._genre = InfoRoot.check_upper_string(s);
     }
     public get status(): string {
         return this._status;

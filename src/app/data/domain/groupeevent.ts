@@ -183,11 +183,11 @@ export class GroupeEvent extends WorkItem
         if ((s !== null) && (this.personid !== null)){
           s = s + '-' + this.personid;
         }
+        if ((s !== null) && (this.genre !== null)){
+            s = s + '-' + this.genre.trim().toUpperCase();
+        }
         if ((s !== null) && (this.eventDate !== null)) {
-            let ss = InfoRoot.create_date_random_id(this.eventDate);
-            if (ss !== null) {
-                s = s + '-' + ss;
-            }
+            s = s + '-' + this.eventDate.toISOString().substr(0, 10);
         }
         return s;
     } // create_id

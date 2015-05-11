@@ -8,9 +8,9 @@ import * as Promise from 'bluebird';
 import PouchDB = require('pouchdb');
 //
 import {Person} from '../../domain/person';
-import {IBaseItem,IItemFactory, IPerson, IWorkItem,
-  IProfAffectation, IEtudAffectation,IGroupeEvent, IEtudEvent,
-  IDatabaseManager} from 'infodata';
+import {IBaseItem, IItemFactory, IPerson, IWorkItem,
+IProfAffectation, IEtudAffectation, IGroupeEvent, IEtudEvent,
+IDatabaseManager} from 'infodata';
 import {EtudAffectation} from '../../domain/etudaffectation';
 import {EtudEvent} from '../../domain/etudevent';
 import {GroupeEvent} from '../../domain/groupeevent';
@@ -28,14 +28,16 @@ export class PouchDatabase implements IDatabaseManager {
     private _db: PouchDB = null;
     private _gen: IItemFactory = null;
     //
-    constructor() { }
+    constructor() {
+        this._gen = new ItemFactory();
+     }
     //
     public get db(): Promise<PouchDB> {
         if (this._db !== null) {
             return Promise.resolve(this._db);
         }
-        if (this._gen === null){
-          this._gen = new ItemFactory();
+        if (this._gen === null) {
+            this._gen = new ItemFactory();
         }
         let self = this;
         return new Promise((resolve: (r: PouchDB) => Promise<PouchDB>, reject) => {
@@ -113,6 +115,42 @@ export class PouchDatabase implements IDatabaseManager {
             return ((xdb !== undefined) && (xdb !== null));
         });
     }// isOnline
+    public check_item(item: IBaseItem): Promise<IBaseItem> {
+        if ((item === undefined) || (item === null)) {
+            throw new Error('Item is null');
+        }
+        let id = item.id;
+        if (id === null) {
+            id = item.create_id();
+            if (id === null) {
+                throw new Error('Item has null id');
+            }
+            item.id = id;
+        }
+        if (!item.is_storeable()) {
+            throw new Error('Item is not storeable');
+        }
+        let options: PouchGetOptions = { attachments: true };
+        let xdb: PouchDB = null;
+        let generator = this._gen;
+        return this.db.then((dx) => {
+            xdb = dx;
+            return xdb.get(id, options);
+        }).then((pOld) => {
+            return { ok: true, id: pOld._id, rev: pOld._rev };
+        }, (ex: PouchError) => {
+                if (ex.status != 404) {
+                    throw new Error(ex.reason);
+                }
+                let oMap: any = {};
+                item.to_map(oMap);
+                return xdb.put(oMap);
+            }).then((oz) => {
+            return xdb.get(id, options);
+        }).then((rz) => {
+            return generator.create(rz);
+        });
+    }// check_item
     public check_admin(): Promise<any> {
         let xdb: PouchDB = null;
         let pPers = new Person({
@@ -147,7 +185,7 @@ export class PouchDatabase implements IDatabaseManager {
         }
         let gen = this._gen;
         return this.db.then((dx) => {
-            return dx.get(id);
+            return dx.get(id, options);
         }).then((pOld) => {
             return gen.create(pOld);
         }, (err) => {
@@ -205,8 +243,8 @@ export class PouchDatabase implements IDatabaseManager {
                     if ((data !== undefined) && (data !== null)) {
                         for (let r of data) {
                             if ((r.doc !== undefined) && (r.doc !== null)) {
-                              //let xx = JSON.stringify(r.doc);
-                              //console.log(xx);
+                                //let xx = JSON.stringify(r.doc);
+                                //console.log(xx);
                                 let x = generator.create(r.doc);
                                 if (x !== null) {
                                     oRet.push(x);
@@ -262,13 +300,13 @@ export class PouchDatabase implements IDatabaseManager {
             return xdb.allDocs(options).then((rr) => {
                 let oRet: string[] = [];
                 if ((rr !== undefined) && (rr !== null) && (rr.rows !== undefined) &&
-                    (rr.rows !== null)){
+                    (rr.rows !== null)) {
                     for (let r of rr.rows) {
-                        if (r.id !== undefined){
+                        if (r.id !== undefined) {
                             let id = r.id;
-                    oRet.push(id);
+                            oRet.push(id);
                         }
-                }// r
+                    }// r
                 }
                 return oRet;
             });
@@ -322,39 +360,39 @@ export class PouchDatabase implements IDatabaseManager {
         });
     }// maintains_one_item
     public maintains_item(item: IBaseItem): Promise<IBaseItem> {
-        if (!item.is_storeable()){
+        if (!item.is_storeable()) {
             Promise.reject(new Error('Not storeable item.'));
         }
         let generator = this._gen;
-        let xdb:PouchDB = null;
-        let oMap:any = {};
-        let id:string = null;
-        return this.db.then((rdb)=>{
+        let xdb: PouchDB = null;
+        let oMap: any = {};
+        let id: string = null;
+        return this.db.then((rdb) => {
             xdb = rdb;
             item.to_map(oMap);
             if ((item.id === undefined) || (item.id === null)) {
                 oMap._id = item.create_id();
             }
-          //  console.log('INPUT MAINTAINS: ' + JSON.stringify(oMap));
+            //  console.log('INPUT MAINTAINS: ' + JSON.stringify(oMap));
             id = oMap._id;
-            return xdb.get(id,{attachments:true});
-            }).then((p)=>{
-                 oMap._rev = p._rev;
-                if ((p._attachments !== undefined) && (p._attachments !== null)) {
-                    oMap._attachments = p._attachments;
-                    }
-                return xdb.put(oMap);
-                },(err)=>{
-                    if (err.status != 404) {
+            return xdb.get(id, { attachments: true });
+        }).then((p) => {
+            oMap._rev = p._rev;
+            if ((p._attachments !== undefined) && (p._attachments !== null)) {
+                oMap._attachments = p._attachments;
+            }
+            return xdb.put(oMap);
+        }, (err) => {
+                if (err.status != 404) {
                     throw new Error(err.reason);
-                    }
+                }
                 return xdb.put(oMap);
-            }).then((z)=>{
-                return xdb.get(id, { attachments: true });
-            }).then((pk)=>{
-              //console.log('OUTPUT MAINTAINS: ' + JSON.stringify(pk));
-                return generator.create(pk);
-            });
+            }).then((z) => {
+            return xdb.get(id, { attachments: true });
+        }).then((pk) => {
+            //console.log('OUTPUT MAINTAINS: ' + JSON.stringify(pk));
+            return generator.create(pk);
+        });
     }// maintains_one_item
     public maintains_items(items: IBaseItem[]): Promise<IBaseItem[]> {
         let self = this;
@@ -378,23 +416,23 @@ export class PouchDatabase implements IDatabaseManager {
         });
     }// remove_one_item
     public maintains_workitem(item: IWorkItem): Promise<IBaseItem> {
-       if ((item.personid === undefined) || (item.personid === null)) {
-           return this.maintains_item(item);
-       }
-       let pid = item.personid;
-       let self = this;
-       return this.find_item_by_id(pid).then((pPers: IPerson) => {
-           if (pPers === null) {
-               throw new Error('unknown person.');
-           }
-           if (item.id === null) {
-               item.id = item.create_id();
-           }
-           item.update_person(pPers);
-           return self.maintains_item(pPers);
-       }).then((x) => {
-           return self.maintains_item(item);
-       });
-   }// maintains_workitem
+        if ((item.personid === undefined) || (item.personid === null)) {
+            return this.maintains_item(item);
+        }
+        let pid = item.personid;
+        let self = this;
+        return this.find_item_by_id(pid).then((pPers: IPerson) => {
+            if (pPers === null) {
+                throw new Error('unknown person.');
+            }
+            if (item.id === null) {
+                item.id = item.create_id();
+            }
+            item.update_person(pPers);
+            return self.maintains_item(pPers);
+        }).then((x) => {
+            return self.maintains_item(item);
+        });
+    }// maintains_workitem
 }// class PouchDatabase
 //

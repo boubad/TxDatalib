@@ -186,6 +186,7 @@ declare module 'infodata' {
         isOnline: () => Promise<boolean>;
         check_admin: () => Promise<any>;
         find_item_by_id: (id: string, bAttach?: boolean) => Promise<IBaseItem>;
+        check_item: (item: IBaseItem) => Promise<IBaseItem>;
         find_items_array: (ids: string[]) => Promise<IBaseItem[]>;
         maintains_item: (item: IBaseItem) => Promise<IBaseItem>;
         maintains_items: (items: IBaseItem[]) => Promise<IBaseItem[]>;

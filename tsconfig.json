@@ -47,6 +47,7 @@
         "./src/app/data/services/pouchdb/pouchdatabase.ts",
         "./src/app/data/utils/infoconstants.ts",
         "./src/app/data/utils/inforoot.ts",
+        "./src/app/test/basefixture.ts",
         "./src/app/test/dummy.ts",
         "./src/app/test/pouchdatabasetest.ts",
         "./typings/bluebird/bluebird.d.ts",

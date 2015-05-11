@@ -31,9 +31,6 @@ export class EtudAffectation extends Affectation
         if ((s !== null) && (this.firstname !== null)) {
             s = s + '-' + this.firstname.trim().toUpperCase();
         }
-        if (s !== null) {
-            s = s + '-' + InfoRoot.create_random_id();
-        }
         return s;
     } // create_id
     public is_storeable(): boolean {

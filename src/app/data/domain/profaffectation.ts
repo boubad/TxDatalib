@@ -86,10 +86,7 @@ export class ProfAffectation extends Affectation
             s = s + '-' + this.personid;
         }
         if ((s !== null) && (this.startDate !== null)) {
-            let ss = InfoRoot.create_date_random_id(this.startDate);
-            if (ss !== null) {
-                s = s + '-' + ss;
-            }
+            s = s + '-' + this.startDate.toISOString().substr(0, 10);
         }
         return s;
     } // create_id
