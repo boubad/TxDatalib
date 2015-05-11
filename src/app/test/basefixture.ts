@@ -216,7 +216,8 @@ export class BaseTestFixture {
                 optionBac: 'SVT',
                 mentionBac: 'Bien',
                 etudesSuperieures: 'MPH1',
-                dossier: 'EZ54321'
+                dossier: 'EZ54321',
+                departementids:[dep.id]
             });
             pPers.reset_password();
             return service.check_item(pPers);
@@ -253,7 +254,8 @@ export class BaseTestFixture {
                 username: 'testprof',
                 firstname: 'TestProfFirstName',
                 lastname: 'TestProfLastName',
-                roles: ['prof']
+                roles: ['prof'],
+                departementids:[dep.id]
             });
             pPers.reset_password();
             return service.check_item(pPers);
@@ -290,7 +292,8 @@ export class BaseTestFixture {
                 username: 'testadmin',
                 firstname: 'TestAdminFirstName',
                 lastname: 'TestAdminLastName',
-                roles: ['admin']
+                roles: ['admin'],
+                departementids:[dep.id]
             });
             pPers.reset_password();
             return service.check_item(pPers);
