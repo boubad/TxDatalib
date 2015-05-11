@@ -29,15 +29,18 @@ export class PouchDatabase implements IDatabaseManager {
     private _gen: IItemFactory = null;
     //
     constructor() {
-        this._gen = new ItemFactory();
-     }
+    }
+    //
+    public get itemFactory(): IItemFactory {
+        if (this._gen === null) {
+            this._gen = new ItemFactory();
+        }
+        return this._gen;
+    }
     //
     public get db(): Promise<PouchDB> {
         if (this._db !== null) {
             return Promise.resolve(this._db);
-        }
-        if (this._gen === null) {
-            this._gen = new ItemFactory();
         }
         let self = this;
         return new Promise((resolve: (r: PouchDB) => Promise<PouchDB>, reject) => {
@@ -59,6 +62,12 @@ export class PouchDatabase implements IDatabaseManager {
     }// db
     //
     protected maintains_doc(doc: any): Promise<PouchUpdateResponse> {
+        if ((doc === undefined) || (doc === null)) {
+            throw new Error('Invalid argument');
+        }
+        if ((doc._id === undefined) || (doc._id === null)) {
+            throw new Error('Invalid document _id');
+        }
         let xdb: PouchDB = null;
         return this.db.then((dx) => {
             xdb = dx;
@@ -78,6 +87,10 @@ export class PouchDatabase implements IDatabaseManager {
             });
     }// maintains_doc
     public find_attachment(docid: string, attachmentId: string): Promise<Blob> {
+        if ((docid === undefined) || (docid === null) || (attachmentId === undefined) ||
+            (attachmentId === null)) {
+            throw new Error('Invalid argument(s)');
+        }
         return this.db.then((xdb) => {
             return xdb.getAttachment(docid, attachmentId);
         }).then((p) => {
@@ -92,6 +105,12 @@ export class PouchDatabase implements IDatabaseManager {
     }// find_attachment
     public maintains_attachment(docid: string, attachmentId: string,
         attachmentData: Blob, attachmentType: string): Promise<PouchUpdateResponse> {
+        if ((docid === undefined) || (docid === null) || (attachmentId === undefined) ||
+            (attachmentId === null) || (attachmentData === undefined) ||
+            (attachmentData === null) || (attachmentType === undefined) ||
+            (attachmentType === null)) {
+            throw new Error('Invalid argument(s)');
+        }
         let xdb = null;
         return this.db.then((d) => {
             xdb = d;
@@ -101,6 +120,10 @@ export class PouchDatabase implements IDatabaseManager {
         });
     }// maintains_attachment
     public remove_attachment(docid: string, attachmentId: string): Promise<PouchUpdateResponse> {
+        if ((docid === undefined) || (docid === null) || (attachmentId === undefined) ||
+            (attachmentId === null)) {
+            throw new Error('Invalid argument(s)');
+        }
         let xdb = null;
         return this.db.then((d) => {
             xdb = d;
@@ -132,7 +155,7 @@ export class PouchDatabase implements IDatabaseManager {
         }
         let options: PouchGetOptions = { attachments: true };
         let xdb: PouchDB = null;
-        let generator = this._gen;
+        let generator = this.itemFactory;
         return this.db.then((dx) => {
             xdb = dx;
             return xdb.get(id, options);
@@ -179,11 +202,14 @@ export class PouchDatabase implements IDatabaseManager {
             });
     }// check_admin
     public find_item_by_id(id: string, bAttach?: boolean): Promise<IBaseItem> {
+        if ((id === undefined) || (id === null)) {
+            throw new Error('Invalid id');
+        }
         let options: PouchGetOptions = {};
         if ((bAttach !== undefined) && (bAttach !== null) && (bAttach == true)) {
             options.attachments = true;
         }
-        let gen = this._gen;
+        let gen = this.itemFactory;
         return this.db.then((dx) => {
             return dx.get(id, options);
         }).then((pOld) => {
@@ -197,7 +223,13 @@ export class PouchDatabase implements IDatabaseManager {
             });
     }//find_item_by_id
     public find_items_array(ids: string[]): Promise<IBaseItem[]> {
-        let generator = this._gen;
+        if ((ids === undefined) || (ids === null)) {
+            return Promise.resolve([]);
+        }
+        if (ids.length < 1) {
+            return Promise.resolve([]);
+        }
+        let generator = this.itemFactory;
         let options: PouchAllDocsOptions = { keys: ids, include_doc: true };
         return this.db.then((xdb) => {
             return xdb.allDocs(options).then((rr) => {
@@ -206,15 +238,25 @@ export class PouchDatabase implements IDatabaseManager {
                     let data = rr.rows;
                     if ((data !== undefined) && (data !== null)) {
                         for (let r of data) {
-                            let val = r.value;
-                            if ((val !== undefined) && (val !== null)) {
-                                if ((val.deleted === undefined) && ((val.error === undefined) || (val.error === null))) {
-                                    let x = generator.create(r.doc);
-                                    if (x !== null) {
-                                        oRet.push(x);
-                                    }
+                            let bOk = true;
+                            if ((r.value !== undefined) && (r.value !== null)) {
+                                let val = r.value;
+                                if ((val.deleted !== undefined) && (val.deleted !== null)) {
+                                    bOk = false;
                                 }
-                            }// val
+                                if ((val.error !== undefined) && (val.error !== null)) {
+                                    bOk = false;
+                                }
+                            }
+                            if ((r.doc === undefined) || (r.doc === null)) {
+                                bOk = false;
+                            }
+                            if (bOk) {
+                                let x = generator.create(r.doc);
+                                if (x !== null) {
+                                    oRet.push(x);
+                                }
+                            }
                         }// r
                     }// data
                 }// rr
@@ -223,6 +265,9 @@ export class PouchDatabase implements IDatabaseManager {
         });
     }//get_items_array
     public get_items(item: IBaseItem, startKey?: any, endKey?: any): Promise<IBaseItem[]> {
+        if ((item === undefined) || (item === null)) {
+            throw new Error('Invalid argument.');
+        }
         let options: PouchGetOptions = { include_docs: true };
         if ((startKey !== undefined) && (startKey !== null)) {
             options.startkey = startKey;
@@ -234,7 +279,7 @@ export class PouchDatabase implements IDatabaseManager {
         } else {
             options.endkey = item.end_key();
         }
-        let generator = this._gen;
+        let generator = this.itemFactory;
         return this.db.then((xdb) => {
             return xdb.allDocs(options).then((rr) => {
                 let oRet: IBaseItem[] = [];
@@ -243,8 +288,6 @@ export class PouchDatabase implements IDatabaseManager {
                     if ((data !== undefined) && (data !== null)) {
                         for (let r of data) {
                             if ((r.doc !== undefined) && (r.doc !== null)) {
-                                //let xx = JSON.stringify(r.doc);
-                                //console.log(xx);
                                 let x = generator.create(r.doc);
                                 if (x !== null) {
                                     oRet.push(x);
@@ -263,10 +306,13 @@ export class PouchDatabase implements IDatabaseManager {
         });
     }// get_items
     public get_all_items(item: IBaseItem): Promise<IBaseItem[]> {
+        if ((item === undefined) || (item === null)) {
+            throw new Error('Invalid argument.');
+        }
         let options: PouchGetOptions = {
             include_docs: true, startkey: item.start_key(), endkey: item.end_key()
         };
-        let generator = this._gen;
+        let generator = this.itemFactory;
         return this.db.then((xdb) => {
             return xdb.allDocs(options).then((rr) => {
                 let oRet: IBaseItem[] = [];
@@ -293,6 +339,10 @@ export class PouchDatabase implements IDatabaseManager {
         });
     }// get_all_items
     public get_ids(startKey: string, endKey: string): Promise<string[]> {
+        if ((startKey === undefined) || (startKey === null) ||
+            (endKey === undefined) || (endKey === null)) {
+            throw new Error('Invalid argument(s)');
+        }
         let options: PouchGetOptions = {
             startkey: startKey, endkey: endKey
         };
@@ -313,6 +363,10 @@ export class PouchDatabase implements IDatabaseManager {
         });
     }//get_ids
     public remove_all_items(startKey: string, endKey: string): Promise<any> {
+        if ((startKey === undefined) || (startKey === null) ||
+            (endKey === undefined) || (endKey === null)) {
+            throw new Error('Invalid argument(s)');
+        }
         let self = this;
         let docs: any[] = [];
         let options: PouchGetOptions = {
@@ -341,7 +395,7 @@ export class PouchDatabase implements IDatabaseManager {
             oMap._id = item.create_id();
         }
         let id = oMap._id;
-        let generator = this._gen;
+        let generator = this.itemFactory;
         return xdb.get(id, { attachments: true }).then((p) => {
             oMap._rev = p._rev;
             if ((p._attachments !== undefined) && (p._attachments !== null)) {
@@ -360,10 +414,13 @@ export class PouchDatabase implements IDatabaseManager {
         });
     }// maintains_one_item
     public maintains_item(item: IBaseItem): Promise<IBaseItem> {
-        if (!item.is_storeable()) {
-            Promise.reject(new Error('Not storeable item.'));
+        if ((item === undefined) || (item === null)) {
+            throw new Error('Invalid argument.');
         }
-        let generator = this._gen;
+        if (!item.is_storeable()) {
+            throw new Error('Not storeable item.');
+        }
+        let generator = this.itemFactory;
         let xdb: PouchDB = null;
         let oMap: any = {};
         let id: string = null;
@@ -373,7 +430,6 @@ export class PouchDatabase implements IDatabaseManager {
             if ((item.id === undefined) || (item.id === null)) {
                 oMap._id = item.create_id();
             }
-            //  console.log('INPUT MAINTAINS: ' + JSON.stringify(oMap));
             id = oMap._id;
             return xdb.get(id, { attachments: true });
         }).then((p) => {
@@ -390,11 +446,13 @@ export class PouchDatabase implements IDatabaseManager {
             }).then((z) => {
             return xdb.get(id, { attachments: true });
         }).then((pk) => {
-            //console.log('OUTPUT MAINTAINS: ' + JSON.stringify(pk));
             return generator.create(pk);
         });
     }// maintains_one_item
     public maintains_items(items: IBaseItem[]): Promise<IBaseItem[]> {
+        if ((items === undefined) || (items === null)) {
+            throw new Error('Invalid argument(s)');
+        }
         let self = this;
         return this.db.then((xdb) => {
             let pp = [];
@@ -406,8 +464,14 @@ export class PouchDatabase implements IDatabaseManager {
         });
     }// maintains_items
     public remove_item(item: IBaseItem): Promise<PouchUpdateResponse> {
-        let xdb: PouchDB = null;
+        if ((item === undefined) || (item === null)) {
+            throw new Error('Invalid argument(s)');
+        }
         let id = item.id;
+        if (id === null) {
+            throw new Error('Invalid argument(s)');
+        }
+        let xdb: PouchDB = null;
         return this.db.then((d) => {
             xdb = d;
             return xdb.get(id);
@@ -416,6 +480,9 @@ export class PouchDatabase implements IDatabaseManager {
         });
     }// remove_one_item
     public maintains_workitem(item: IWorkItem): Promise<IBaseItem> {
+        if ((item === undefined) || (item === null)) {
+            throw new Error('Invalid argument(s)');
+        }
         if ((item.personid === undefined) || (item.personid === null)) {
             return this.maintains_item(item);
         }
