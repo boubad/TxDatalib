@@ -13,6 +13,28 @@ class PouchDatabaseTest extends BaseTestFixture {
     constructor() {
         super();
     } // constructor
+    /*
+    public test_gql(): void {
+        QUnit.test("PouchDatabaseTest gql", (assert) => {
+            var done = assert.async();
+            let service = this.dataService;
+            service.db.then((p: PouchDB) => {
+                p.gql({select:'*',where:'type="person"'},(ex,r)=>{
+                  if ((ex !== undefined) && (ex !== null)){
+                    assert.ok(false,ex.reason);
+                  } else {
+                    assert.ok((r !== undefined) && (r !== null));
+                    console.log((r)?JSON.stringify(r): 'NULL result');
+                  }
+                  done();
+                });
+            }).catch((err) => {
+                assert.ok(false, (err) ? err.toString() : 'Exception');
+                done();
+            });
+        });
+    } // test_getetudevent
+    */
     public test_getetudevent(): void {
         QUnit.test("PouchDatabaseTest get_etudevent", (assert) => {
             var done = assert.async();
@@ -227,6 +249,7 @@ class PouchDatabaseTest extends BaseTestFixture {
         this.test_getetudaffectation();
         this.test_getgroupeevent();
         this.test_getetudevent();
+        //this.test_gql();
     }// run
 }// class PouchDatabaseTest
 export var main = new PouchDatabaseTest();

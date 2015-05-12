@@ -2,7 +2,7 @@
 //
 import {Person} from '../domain/person';
 import {EtudiantPerson} from '../domain/etudperson';
-import {IPerson, IDepartement, IAnnee, ISemestre, IUnite, IMatiere, IGroupe,IDataService} from 'infodata';
+import {IPerson, IDepartement, IAnnee, ISemestre, IUnite, IMatiere, IGroupe, IDataService} from 'infodata';
 import {InfoRoot} from '../utils/inforoot';
 import {DATABASE_NAME,
 PERSON_KEY, DEPARTEMENTID_KEY, ANNEEID_KEY, SEMESTREID_KEY, UNITEID_KEY, MATIEREID_KEY,
@@ -22,10 +22,16 @@ export class UserInfo {
     private _matieres: IMatiere[] = null;
     private _groupes: IGroupe[] = null;
     //
+    private _allannees: IAnnee[] = null;
+    private _allsemestres: ISemestre[] = null;
+    private _allunites: IUnite[] = null;
+    private _allmatieres: IMatiere[] = null;
+    private _allgroupes: IGroupe[] = null;
+    //
     constructor(service?: IDataService) {
-      if ((service !== undefined) && (service !== null)){
-        this._service = service;
-      }
+        if ((service !== undefined) && (service !== null)) {
+            this._service = service;
+        }
     }// constructor
     public get dataService(): IDataService {
         if (this._service === null) {
@@ -99,31 +105,10 @@ export class UserInfo {
         InfoRoot.sessionStore_set(ETUDIANTID_KEY, id);
     }
     public get departements(): Promise<IDepartement[]> {
-        if (this._deps !== null) {
-            return Promise.resolve(this._deps);
+        if (this._deps === null) {
+            this._deps = [];
         }
-        this._deps = [];
-        let pPers: IPerson = this.person;
-        if (pPers === null) {
-            return Promise.resolve(this._deps);
-        }
-        let self = this;
-        if (pPers.is_super) {
-            return this.dataService.get_all_departements().then((dd) => {
-                self._deps = InfoRoot.check_array(dd);
-                return self._deps;
-            });
-        } else {
-            let cont: string[] = pPers.departementids;
-            if (cont === null) {
-                return Promise.resolve(this._deps);
-            } else {
-                return this.dataService.find_items_array(cont).then((dd: IDepartement[]) => {
-                    self._deps = InfoRoot.check_array(dd);
-                    return self._deps;
-                });
-            }
-        }
+        return Promise.resolve(this._deps);
     }// get departements
     public get annees(): Promise<IAnnee[]> {
         if (this._annees !== null) {
@@ -144,23 +129,14 @@ export class UserInfo {
                 self._annees = InfoRoot.check_array(dd);
                 return self._annees;
             });
-        } else {
-            let cont: string[] = pPers.anneeids;
-            if (cont === null) {
-                return Promise.resolve(this._annees);
-            } else {
-                return this.dataService.find_items_array(cont).then((dd: IAnnee[]) => {
-                    let oRet: IAnnee[] = [];
-                    for (let x of dd) {
-                        if (x.departementid == depid) {
-                            oRet.push(x);
-                        }
-                    }// x
-                    self._annees = oRet;
-                    return self._annees;
-                });
-            }
+        } else if (this._allannees !== null) {
+            for (let x of this._allannees) {
+                if (x.departementid == depid) {
+                    this._annees.push(x);
+                }
+            }//x
         }
+        return Promise.resolve(this._annees);
     }// get annees
     public get unites(): Promise<IUnite[]> {
         if (this._unites !== null) {
@@ -181,23 +157,14 @@ export class UserInfo {
                 self._unites = InfoRoot.check_array(dd);
                 return self._unites;
             });
-        } else {
-            let cont: string[] = pPers.uniteids;
-            if (cont === null) {
-                return Promise.resolve(this._unites);
-            } else {
-                return this.dataService.find_items_array(cont).then((dd: IUnite[]) => {
-                    let oRet: IUnite[] = [];
-                    for (let x of dd) {
-                        if (x.departementid == depid) {
-                            oRet.push(x);
-                        }
-                    }// x
-                    self._unites = oRet;
-                    return self._unites;
-                });
-            }
+        } else if (this._allunites !== null) {
+            for (let x of this._allunites) {
+                if (x.departementid == depid) {
+                    this._unites.push(x);
+                }
+            }//x
         }
+        return Promise.resolve(this._unites);
     }// get unites
     public get semestres(): Promise<ISemestre[]> {
         if (this._semestres !== null) {
@@ -218,23 +185,14 @@ export class UserInfo {
                 self._semestres = InfoRoot.check_array(dd);
                 return self._semestres;
             });
-        } else {
-            let cont: string[] = pPers.semestreids;
-            if (cont === null) {
-                return Promise.resolve(this._semestres);
-            } else {
-                return this.dataService.find_items_array(cont).then((dd: ISemestre[]) => {
-                    let oRet: ISemestre[] = [];
-                    for (let x of dd) {
-                        if (x.anneeid == anneeid) {
-                            oRet.push(x);
-                        }
-                    }// x
-                    self._semestres = oRet;
-                    return self._semestres;
-                });
-            }
+        } else if (this._allsemestres !== null) {
+            for (let x of this._allsemestres) {
+                if (x.anneeid == anneeid) {
+                    this._semestres.push(x);
+                }
+            }//x
         }
+        return Promise.resolve(this._semestres);
     }// get semestres
     public get matieres(): Promise<IMatiere[]> {
         if (this._matieres !== null) {
@@ -255,23 +213,14 @@ export class UserInfo {
                 self._matieres = InfoRoot.check_array(dd);
                 return self._matieres;
             });
-        } else {
-            let cont: string[] = pPers.matiereids;
-            if (cont === null) {
-                return Promise.resolve(this._matieres);
-            } else {
-                return this.dataService.find_items_array(cont).then((dd: IMatiere[]) => {
-                    let oRet: IMatiere[] = [];
-                    for (let x of dd) {
-                        if (x.uniteid == uniteid) {
-                            oRet.push(x);
-                        }
-                    }// x
-                    self._matieres = oRet;
-                    return self._matieres;
-                });
-            }
+        } else if (this._allmatieres !== null) {
+            for (let x of this._allmatieres) {
+                if (x.uniteid == uniteid) {
+                    this._matieres.push(x);
+                }
+            }//x
         }
+        return Promise.resolve(this._matieres);
     }// get matieres
     public get groupes(): Promise<IGroupe[]> {
         if (this._groupes !== null) {
@@ -292,23 +241,14 @@ export class UserInfo {
                 self._groupes = InfoRoot.check_array(dd);
                 return self._groupes;
             });
-        } else {
-            let cont: string[] = pPers.groupeids;
-            if (cont === null) {
-                return Promise.resolve(this._groupes);
-            } else {
-                return this.dataService.find_items_array(cont).then((dd: IGroupe[]) => {
-                    let oRet: IGroupe[] = [];
-                    for (let x of dd) {
-                        if (x.departementid == depid) {
-                            oRet.push(x);
-                        }
-                    }// x
-                    self._groupes = oRet;
-                    return self._groupes;
-                });
-            }
+        } else if (this._allgroupes !== null) {
+            for (let x of this._allgroupes) {
+                if (x.departementid == depid) {
+                    this._groupes.push(x);
+                }
+            }//x
         }
+        return Promise.resolve(this._groupes);
     }// get groupes
     public get person(): IPerson {
         if ((this._pers !== null) && (this._pers.id !== null)) {
@@ -334,9 +274,9 @@ export class UserInfo {
         return this._pers;
     }// get person
     public set person(pPers: IPerson) {
-        if ((this._pers !== null) && (this._pers.url !== null)){
-          InfoRoot.revokeUrl(this._pers.url);
-          this._pers.url = null;
+        if ((this._pers !== null) && (this._pers.url !== null)) {
+            InfoRoot.revokeUrl(this._pers.url);
+            this._pers.url = null;
         }
         this._pers = null;
         this._deps = null;
@@ -345,6 +285,11 @@ export class UserInfo {
         this._unites = null;
         this._matieres = null;
         this._groupes = null;
+        this._allannees = null;
+        this._allgroupes = null;
+        this._allmatieres = null;
+        this._allsemestres = null;
+        this._allunites = null;
         InfoRoot.sessionStore_remove(ANNEEID_KEY);
         InfoRoot.sessionStore_remove(UNITEID_KEY);
         InfoRoot.sessionStore_remove(MATIEREID_KEY);
@@ -354,6 +299,8 @@ export class UserInfo {
         InfoRoot.sessionStore_remove(PERSON_KEY);
         if ((pPers !== undefined) && (pPers !== null) && (pPers.id !== null)) {
             pPers.url = null;
+            let self = this;
+            let service = this.dataService;
             try {
                 let oMap: any = {};
                 pPers.to_map(oMap);
@@ -361,12 +308,36 @@ export class UserInfo {
                 InfoRoot.sessionStore_set(PERSON_KEY, sval);
                 this._pers = pPers;
                 let avatarid = pPers.avatarid;
-                if (avatarid !== null){
-                  this.dataService.find_attachment(pPers.id,avatarid).then((blob)=>{
-                    pPers.url = InfoRoot.createUrl(blob);
-                  });
+                if (avatarid !== null) {
+                    service.find_attachment(pPers.id, avatarid).then((blob) => {
+                        pPers.url = InfoRoot.createUrl(blob);
+                    });
                 }
             } catch (e) { }
+            if (!pPers.is_super) {
+                service.find_items_array(pPers.departementids).then((dd: IDepartement[]) => {
+                    self._deps = InfoRoot.check_array(dd);
+                    return service.find_items_array(pPers.anneeids);
+                }).then((aa: IAnnee[]) => {
+                    self._allannees = InfoRoot.check_array(aa);
+                    return service.find_items_array(pPers.uniteids);
+                }).then((uu: IUnite[]) => {
+                    self._allunites = InfoRoot.check_array(uu);
+                    return service.find_items_array(pPers.groupeids);
+                }).then((gg: IGroupe[]) => {
+                    self._allgroupes = InfoRoot.check_array(gg);
+                    return service.find_items_array(pPers.matiereids);
+                }).then((mm: IMatiere[]) => {
+                    self._allmatieres = InfoRoot.check_array(mm);
+                    return service.find_items_array(pPers.semestreids);
+                }).then((ss: ISemestre[]) => {
+                    self._allsemestres = InfoRoot.check_array(ss);
+                });
+            } else {
+                service.get_all_departements().then((dd: IDepartement[]) => {
+                    self._deps = InfoRoot.check_array(dd);
+                });
+            }
         }
     }// set person
     public get is_super(): boolean {
@@ -389,25 +360,25 @@ export class UserInfo {
         return (x !== null) && x.is_etud;
     }
     public set is_etud(b: boolean) { }
-    public get url():string{
-      return (this.person !== null) ? this.person.url: null;
+    public get url(): string {
+        return (this.person !== null) ? this.person.url : null;
     }
-    public get has_url():boolean{
-      return (this.url !== null);
+    public get has_url(): boolean {
+        return (this.url !== null);
     }
-    public set has_url(s:boolean){}
-    public get personid():string {
-      return (this.person !== null) ? this.personid : null;
+    public set has_url(s: boolean) { }
+    public get personid(): string {
+        return (this.person !== null) ? this.personid : null;
     }
-    public get fullname():string {
-      return (this.person !== null) ? this.person.fullname : null;
+    public get fullname(): string {
+        return (this.person !== null) ? this.person.fullname : null;
     }
-    public get is_connected():boolean {
-      return (this.personid !== null);
+    public get is_connected(): boolean {
+        return (this.personid !== null);
     }
-    public set is_connected(s:boolean){}
-    public get is_notconnected():boolean {
-      return (!this.is_connected);
+    public set is_connected(s: boolean) { }
+    public get is_notconnected(): boolean {
+        return (!this.is_connected);
     }
-    public set is_notconnected(s:boolean){}
+    public set is_notconnected(s: boolean) { }
 }// class UserInfo

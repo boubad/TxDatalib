@@ -2,10 +2,16 @@
 //
 /// <reference path='../../../../../typings/bluebird/bluebird.d.ts' />
 /// <reference path='../../../../../typings/pouchdb/pouchdb.d.ts' />
+/// <reference path='../../../../../typings/pouchdb/gql.d.ts' />
 /// <reference path='../../../../../typings/infodata/infodata.d.ts' />
 //
 import * as Promise from 'bluebird';
+
+//import {PouchDB,PouchError,PouchUpdateResponse,PouchGetOptions,
+//PouchAllDocsOptions}  from 'pouchdb';
 import PouchDB = require('pouchdb');
+//import GQL = require('gql');
+
 //
 import {Person} from '../../domain/person';
 import {IBaseItem, IItemFactory, IPerson, IWorkItem,
@@ -21,6 +27,7 @@ import {DATABASE_NAME, PERSON_KEY, SUPER_USERNAME, SUPER_LASTNAME,
 SUPER_FIRSTNAME, ROLE_SUPER, ROLE_ADMIN} from '../../utils/infoconstants';
 //
 //PouchDB.debug.enable('*');
+//PouchDB.plugin(GQL);
 //declare var PouchDB: any;
 //
 export class PouchDatabase implements IDatabaseManager {
@@ -29,6 +36,7 @@ export class PouchDatabase implements IDatabaseManager {
     private _gen: IItemFactory = null;
     //
     constructor() {
+
     }
     //
     public get itemFactory(): IItemFactory {

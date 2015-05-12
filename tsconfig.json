@@ -42,7 +42,9 @@
         "./src/app/data/domain/siglenameitem.ts",
         "./src/app/data/domain/unite.ts",
         "./src/app/data/domain/workitem.ts",
+        "./src/app/data/model/baseviewmodel.ts",
         "./src/app/data/model/userinfo.ts",
+        "./src/app/data/model/workviewmodel.ts",
         "./src/app/data/services/dataservice.ts",
         "./src/app/data/services/pouchdb/pouchdatabase.ts",
         "./src/app/data/utils/infoconstants.ts",
@@ -52,6 +54,7 @@
         "./src/app/test/pouchdatabasetest.ts",
         "./typings/bluebird/bluebird.d.ts",
         "./typings/infodata/infodata.d.ts",
+        "./typings/pouchdb/gql.d.ts",
         "./typings/pouchdb/pouchdb.d.ts",
         "./typings/qunit/qunit.d.ts"
     ]
