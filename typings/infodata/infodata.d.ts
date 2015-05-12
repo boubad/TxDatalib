@@ -183,7 +183,6 @@ declare module 'infodata' {
     }// interface IObjectStore
     //
     export interface IDatabaseManager {
-        db: Promise<PouchDB>;
         isOnline: () => Promise<boolean>;
         check_admin: () => Promise<any>;
         find_item_by_id: (id: string, bAttach?: boolean) => Promise<IBaseItem>;
@@ -224,6 +223,7 @@ declare module 'infodata' {
         is_storeable: boolean;
         clear: () => void;
         changed: (evt: any) => any;
+        remove_url: () => string;
     }// interface IFileDesc
     //
 }// module infodata

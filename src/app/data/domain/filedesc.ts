@@ -32,6 +32,11 @@ export class FileDesc implements IFileDesc {
     public get url(): string {
         return this._dataurl;
     }
+    public remove_url():string {
+        let xRet = this._dataurl;
+        this._dataurl = null;
+        return xRet;
+    }
     public get is_storeable(): boolean {
         return (this.name !== null) && (this.type !== null) && (this.data !== null);
     }
