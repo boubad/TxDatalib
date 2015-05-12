@@ -238,7 +238,7 @@ export class PouchDatabase implements IDatabaseManager {
             return Promise.resolve([]);
         }
         let generator = this.itemFactory;
-        let options: PouchAllDocsOptions = { keys: ids, include_doc: true };
+        let options: PouchAllDocsOptions = { keys: ids, include_docs: true };
         return this.db.then((xdb) => {
             return xdb.allDocs(options).then((rr) => {
                 let oRet: IBaseItem[] = [];

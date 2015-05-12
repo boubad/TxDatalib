@@ -55,9 +55,13 @@ export class BaseTestFixture {
         }
         let self = this;
         let service = this.dataService;
+        let mat: IMatiere = null;
         let evt: IGroupeEvent = null;
         let aff: IEtudAffectation = null;
-        return this.get_groupeevent().then((x1: IGroupeEvent) => {
+        return this.get_matiere().then((mx: IMatiere) => {
+            mat = mx;
+            return self.get_groupeevent();
+        }).then((x1: IGroupeEvent) => {
             evt = x1;
             return self.get_etudaffectation();
         }).then((x2: IEtudAffectation) => {
@@ -78,6 +82,15 @@ export class BaseTestFixture {
             return service.check_item(model);
         }).then((rz: IEtudEvent) => {
             self.etudevent = rz;
+            return service.find_item_by_id(aff.personid);
+        }).then((pPers: IPerson) => {
+            pPers.eventids = [self.etudevent.id];
+            pPers.groupeids = [aff.groupeid];
+            pPers.semestreids = [aff.semestreid];
+            pPers.matiereids = [mat.id];
+            pPers.uniteids = [mat.uniteid];
+            return service.maintains_item(pPers);
+        }).then((xx) => {
             return self.etudevent;
         });
     }// get_etudevent
@@ -110,6 +123,11 @@ export class BaseTestFixture {
             return service.check_item(model);
         }).then((rz: IGroupeEvent) => {
             self.groupeevent = rz;
+            return service.find_item_by_id(aff.personid);
+        }).then((pPers: IPerson) => {
+            pPers.eventids = [self.groupeevent.id];
+            return service.maintains_item(pPers);
+        }).then((xx) => {
             return self.groupeevent;
         });
     }// get_etudaffectation
@@ -122,9 +140,12 @@ export class BaseTestFixture {
         let etud: IEtudiant = null;
         let grp: IGroupe = null;
         let sem: ISemestre = null;
-
+        let pPers: IPerson = null;
         return this.get_etudiant().then((x1: IEtudiant) => {
             etud = x1;
+            return service.find_item_by_id(etud.personid);
+        }).then((xp: IPerson) => {
+            pPers = xp;
             return self.get_groupe();
         }).then((x3: IGroupe) => {
             grp = x3;
@@ -146,6 +167,12 @@ export class BaseTestFixture {
             return service.check_item(model);
         }).then((rz: IEtudAffectation) => {
             self.etudaffectation = rz;
+            pPers.semestreids = [sem.id];
+            pPers.anneeids = [sem.anneeid];
+            pPers.groupeids = [grp.id];
+            pPers.affectationids = [rz.id];
+            return service.maintains_item(pPers);
+        }).then((xx) => {
             return self.etudaffectation;
         });
     }// get_etudaffectation
@@ -160,9 +187,12 @@ export class BaseTestFixture {
         let grp: IGroupe = null;
         let sem: ISemestre = null;
         let pp: Promise<any>[] = [];
-
+        let pPers: IPerson = null;
         return this.get_enseignant().then((x1: IEnseignant) => {
             prof = x1;
+            return service.find_item_by_id(prof.personid);
+        }).then((xPers: IPerson) => {
+            pPers = xPers;
             return self.get_matiere();
         }).then((x2: IMatiere) => {
             mat = x2;
@@ -171,7 +201,7 @@ export class BaseTestFixture {
             grp = x3;
             return self.get_semestre();
         }).then((x4: ISemestre) => {
-            sem = x4;
+            sem = x4;
             let model = new ProfAffectation({
                 departementid: prof.departementid,
                 uniteid: mat.uniteid,
@@ -190,8 +220,15 @@ export class BaseTestFixture {
             return service.check_item(model);
         }).then((rz: IProfAffectation) => {
             self.profaffectation = rz;
+            pPers.uniteids = [mat.uniteid];
+            pPers.semestreids = [sem.id];
+            pPers.anneeids = [sem.anneeid];
+            pPers.groupeids = [grp.id];
+            pPers.affectationids = [rz.id];
+            return service.maintains_item(pPers);
+        }).then((xx) => {
             return self.profaffectation;
-        });
+        })
     }// get_profaffectation
     public get_etudiant(): Promise<IEtudiant> {
         if (this.etudiant !== null) {
@@ -217,7 +254,7 @@ export class BaseTestFixture {
                 mentionBac: 'Bien',
                 etudesSuperieures: 'MPH1',
                 dossier: 'EZ54321',
-                departementids:[dep.id]
+                departementids: [dep.id]
             });
             pPers.reset_password();
             return service.check_item(pPers);
@@ -229,8 +266,9 @@ export class BaseTestFixture {
                 firstname: pPers.firstname,
                 lastname: pPers.lastname
             });
-            model.update_person(pPers);
-            return service.check_item(pPers);
+            model.id = model.create_id();
+            pPers.etudiantids = [model.id];
+            return service.maintains_item(pPers);
         }).then((px: IPerson) => {
             pPers = px;
             return service.check_item(model);
@@ -255,7 +293,7 @@ export class BaseTestFixture {
                 firstname: 'TestProfFirstName',
                 lastname: 'TestProfLastName',
                 roles: ['prof'],
-                departementids:[dep.id]
+                departementids: [dep.id]
             });
             pPers.reset_password();
             return service.check_item(pPers);
@@ -267,8 +305,9 @@ export class BaseTestFixture {
                 firstname: pPers.firstname,
                 lastname: pPers.lastname
             });
-            model.update_person(pPers);
-            return service.check_item(pPers);
+            model.id = model.create_id();
+            pPers.enseignantids = [model.id];
+            return service.maintains_item(pPers);
         }).then((px: IPerson) => {
             pPers = px;
             return service.check_item(model);
@@ -288,12 +327,13 @@ export class BaseTestFixture {
         let dep: IDepartement = null;
         return this.get_departement().then((pdep) => {
             dep = pdep;
-            pPers = new Person({
+            pPers = new Person({
+
                 username: 'testadmin',
                 firstname: 'TestAdminFirstName',
                 lastname: 'TestAdminLastName',
                 roles: ['admin'],
-                departementids:[dep.id]
+                departementids: [dep.id]
             });
             pPers.reset_password();
             return service.check_item(pPers);

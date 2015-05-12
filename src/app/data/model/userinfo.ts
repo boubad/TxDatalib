@@ -105,8 +105,23 @@ export class UserInfo {
         InfoRoot.sessionStore_set(ETUDIANTID_KEY, id);
     }
     public get departements(): Promise<IDepartement[]> {
+        let pPers:IPerson = this.person;
+        if (pPers === null) {
+            return Promise.resolve([]);
+        }
         if (this._deps === null) {
-            this._deps = [];
+            let self = this;
+            if (this.is_super) {
+                return this.dataService.get_all_departements().then((dd) => {
+                    self._deps = InfoRoot.check_array(dd);
+                    return self._deps;
+                });
+            } else {
+                return this.dataService.find_items_array(pPers.departementids).then((dd: IDepartement[]) => {
+                    self._deps = InfoRoot.check_array(dd);
+                    return self._deps;
+                });
+            }
         }
         return Promise.resolve(this._deps);
     }// get departements
@@ -368,7 +383,7 @@ export class UserInfo {
     }
     public set has_url(s: boolean) { }
     public get personid(): string {
-        return (this.person !== null) ? this.personid : null;
+        return (this.person !== null) ? this.person.id : null;
     }
     public get fullname(): string {
         return (this.person !== null) ? this.person.fullname : null;

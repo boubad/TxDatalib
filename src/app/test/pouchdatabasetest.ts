@@ -8,7 +8,7 @@ import {IDataService, IPerson, IDepartement, IGroupe, IUnite, IAnnee, IMatiere, 
 IEnseignant, IEtudiant, IAdministrator,
 IEtudAffectation, IProfAffectation, IGroupeEvent, IEtudEvent} from 'infodata';
 //
-class PouchDatabaseTest extends BaseTestFixture {
+export class PouchDatabaseTest extends BaseTestFixture {
     //
     constructor() {
         super();

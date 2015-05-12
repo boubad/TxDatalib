@@ -70,6 +70,7 @@
         "./src/app/test/basefixture.ts",
         "./src/app/test/dummy.ts",
         "./src/app/test/pouchdatabasetest.ts",
+        "./src/app/test/userinfotest.ts",
         "./typings/bluebird/bluebird.d.ts",
         "./typings/infodata/infodata.d.ts",
         "./typings/pouchdb/gql.d.ts",

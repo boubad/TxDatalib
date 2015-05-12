@@ -33,7 +33,7 @@ require.config({
 });
 // require the unit tests.
 require(
-    ['bluebird','pouchdb','gql','QUnit','test/pouchdatabasetest'],
+    ['bluebird','pouchdb','gql','QUnit','test/userinfotest'],
     function(Promise,PouchDB,GQL,QUnit, Mytest) {
         PouchDB.debug.enable('*');
         PouchDB.plugin(GQL);
